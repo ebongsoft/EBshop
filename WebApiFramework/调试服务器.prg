@@ -1,3 +1,7 @@
+*--  作者:加菲猫
+*--  2019.5.30 修正上传文件POST数据过小,没有赋于TmpData属性
+*--  2019.5    修正Qiyu_FormParams判定content-type方法
+
 *_SCREEN.Visible = .F.
 SET TALK OFF
 CLEAR
@@ -80,11 +84,11 @@ DEFINE CLASS WebServerForm As Form
         oIPs = oIPs.InstancesOf('Win32_NetworkAdapterConfiguration')
         FOR EACH oIP IN oIPs
             IF oIP.IPEnabled
-                this.Text1.Value = oIP.IPAddress[0]
+                 this.Text1.Value = oIP.IPAddress[0]
                 EXIT
             ENDIF
         ENDFOR
-        
+        *this.Text1.Value="0.0.0.0"
         this.AlwaysOnTop = .F.
         thisform.Command1.click()
     ENDPROC
@@ -96,14 +100,14 @@ DEFINE CLASS WebServerForm As Form
     PROCEDURE Command1.Click
         IF !thisform.isStart
 	        szRet = thisform.SocketWeb1._SetListen(thisform.hWnd,;
-	                                               ALLTRIM(thisform.Text1.Value),;
+	                                               "0.0.0.0",;
 	                                               thisform.Text2.Value)
 	        thisform._WriteMsg(szRet)       
 	        this.Caption="停止服务"
 	        
         ELSE
            szRet =thisform.SocketWeb1._closeListen(thisform.hWnd,;
-	                                               ALLTRIM(thisform.Text1.Value),;
+	                                               "0.0.0.0",;
 	                                               thisform.Text2.Value)
 	       thisform._WriteMsg(szRet )                                          
      	   this.Caption="开启服务"
@@ -142,6 +146,7 @@ DEFINE CLASS WebServerForm As Form
         m.RequestObject=JUSTSTEM(cFileName) &&RIGHT(cUrlPath,LEN(cUrlPath)-RAT("/",cUrlPath))
         m.RequestExtName=JUSTEXT(cFileName)
         m.classfile=RequestObject+".prg"
+      
         *--常规文件处理
         IF UPPER(m.RequestExtName)!="FSP"
           TRY           
@@ -162,28 +167,33 @@ DEFINE CLASS WebServerForm As Form
 		 
 		  *?cFilePath,m.RequestExtName,this.getContentType(m.RequestExtName)
           cResult=FILETOSTR(cFilePath)
-         * cResult=FILETOSTR("wwwroot\"+m.RequestObject+"."+m.RequestExtName)        
+         * cResult=FILETOSTR("wwwroot\"+m.RequestObject+"."+m.RequestExtName)                 
          Thisform.SocketHttp1.contenttype=Thisform.getContentType(m.RequestExtName)        
          IF EMPTY( Thisform.SocketHttp1.contenttype)
             Thisform.SocketHttp1.contenttype="text\html"
          ENDIF 
           Thisform.SocketHttp1.Qiyu_Write(cResult,iConnid)
+          Thisform.SocketHttp1.contenttype="text\html"
           CATCH TO ex
             Thisform.SocketHttp1.Qiyu_Write(m.RequestObject+"."+m.RequestExtName+ex.message,iConnid)
+             Thisform.SocketHttp1.contenttype="text\html"
             oFrmMain.log(m.RequestObject+"."+m.RequestExtName+ex.message)
           ENDTRY 
           RETURN
         ENDIF 
-        
+      
 		Try
 			oHttpcontext=Newobject("HttpContext","HttpContext.prg")
-	        oFrmMain.Log(oHttpcontext.getAbsoluteUri())
+	        oFrmMain.Log(oHttpcontext.getAbsoluteUri())	            
 	        lcappuser=Alltrim(Thisform.SocketHttp1.Qiyu_Request("appuser")) &&appuser必传,支持多用户	        
-			oControll=Newobject(m.RequestObject,m.classfile)  && BS框架再考虑了 如果能找到类库，则类执行运算,如果不是，则由默认类去执行
+			oControll=Newobject(m.RequestObject,m.classfile)  && BS框架再考虑了 如果能找到类库，则类执行运算,如果不是，则由默认类去执行	    
 			oCtlObjType=oControll.ParentClass
 			*--得到参数 调用类方法
+	
 		    cProc= Thisform.SocketHttp1.Qiyu_Request("proc")
-		    
+		    IF EMPTY(cProc)
+			  cProc="onDefault"			
+			ENDIF 
 			*--判断是父类wxapi weixinfsp
 			Do Case
 				Case Upper(oControll.ParentClass)==Upper("weixinApi")
@@ -224,6 +234,7 @@ DEFINE CLASS WebServerForm As Form
 					m.RetHtml=Transform(&lccmd)
 					*ofrmMain.Log(WebGetUri()+Chr(13)+oControll.Name+"."+cProc+"调用成功")  &&写入日志
 					Thisform.SocketHttp1.Qiyu_Write(strconv(m.RetHtml,9),m.iConnID) &&转码成UTF-8
+					 Thisform.SocketHttp1.contenttype="text\html"
 					*fws_write(m.RetHtml)    &&将处理结果输出给浏览器
 					ofrmMain.Log(cUrlPath+CHR(13)+oControll.Name+"."+cProc+"调用成功")  &&写入日志
 			Endcase
@@ -242,6 +253,7 @@ DEFINE CLASS WebServerForm As Form
 			ofrmMain.Log(objall.tostring())
 			*HttpWrite(iConnid,STRCONV(objall.tostring(),9))				
 			Thisform.SocketHttp1.Qiyu_Write(STRCONV(objall.tostring(),9),iConnID)
+			 Thisform.SocketHttp1.contenttype="text\html"
 		Endtry
          
         *thisform._WriteMsg(szReadBuf)                         &&调试信息
@@ -383,67 +395,61 @@ DEFINE CLASS SocketWeb AS Session
 
     TmpData=""
     boundary=""
+    DataLen=0
+    RevDataLen=0
     * 接收到数据包
     PROCEDURE _RecvData
-        LPARAMETERS _hSocket
-        LOCAL szReadBuf, nDataLen,nStart,cParseChar 
+       LPARAMETERS _hSocket
+        LOCAL szReadBuf, nDataLen,nStart,cParseChar ,nLen
         szReadBuf = SPACE(32768)    && 32 * 1024
-        *?"len",LEN(szReadBuf)
-        nDataLen = recv(_hSocket, @szReadBuf, LEN(szReadBuf), 0)        
-        *?"nDataLen",nDataLen 
-        IF nDataLen > 0
-            szReadBuf = LEFT(szReadBuf, nDataLen)
+        *?"len",LEN(szReadBuf)      
+        nDataLen = recv(_hSocket, @szReadBuf, LEN(szReadBuf), 0)       
+        IF  nDataLen > 0
+               szReadBuf = LEFT(szReadBuf, nDataLen)
+               STRTOFILE(szReadBuf,"77.txt")               
             *--解析一下报文
-            nStart=AT(CHR(13),szReadBuf)   
+            nStart=AT(CHR(13),szReadBuf)  
             DO CASE          
             CASE  "POST"$UPPER(left(szReadBuf,nstart))
-                  *//能否找到                  
-                   m.cParseChar = Strextract(szReadBuf, "boundary=", CHR(13)) 
-                   this.boundary=  m.cParseChar       
-                    &&说明有文件流  再判断文件尾部          
-                   IF !EMPTY(m.cParseChar) AND !RIGHT(szReadBuf,LEN(m.cParseChar))==m.cParseChar                    
-                     this.TmpData = this.TmpData + szReadBuf                      
-                     *?"有文件流"
+                   nLen= Strextract(szReadBuf, "Content-Length:", CHR(13)+CHR(10),1,1) 
+	               *--取出身体
+	               LOCAL nDataStart             
+	               nDataStart =AT(0h0D0A0D0A,szReadBuf)
+	               *cDataBody=RIGHT(szReadBuf,LEN(szReadBuf)-1)
+	               this.DataLen=VAL(nLen)
+	               this.RevDataLen=LEN(szReadBuf)-nDataStart-3 &&第一次接收的
+	               *?"总长度",this.DataLen,"接收长度",this.RevDataLen
+                   IF this.DataLen>this.RevDataLen  &&说明还有数据
+                      *this.TmpData = this.TmpData + szReadBuf     
+                      this.TmpData =szReadBuf     
                    ELSE 
-                     this._OnRead(_hSocket, szReadBuf)
-                     closesocket(_hSocket)
+                        this.TmpData =szReadBuf   
+                        this._OnRead(_hSocket, szReadBuf)
+                        closesocket(_hSocket)
                    ENDIF 
             CASE  "GET"$UPPER(left(szReadBuf,nstart))
                    this._OnRead(_hSocket, szReadBuf)
                    closesocket(_hSocket)
-              &&说明是文件流 或GET   
+                    &&说明是还有数据
             OTHERWISE   
-             *--将数据流合并
-             this.TmpData = this.TmpData + szReadBuf           
-             *?"文件流合并",RIGHT(szReadBuf,LEN(this.boundary)), this.boundary     
-             LOCAL tmpx1
-             tmpx1=LEFT(RIGHT(szReadBuf,LEN(this.boundary)+4),LEN(this.boundary)+2)
-             IF tmpx1==this.boundary+"--"         
-                *说明是尾部了                
-                *?"文件流结束"
-                 *STRTOFILE(this.tmpData,"x4.txt")
+                 *--将数据流合并         
+                this.TmpData = this.TmpData + szReadBuf     
+                this.RevDataLen=this.RevDataLen+LEN(szReadBuf) &&第一次接收的
+                *?"接收:",LEN(szReadBuf)                 
+               IF this.DataLen<=this.RevDataLen && 接收完毕     
+                 *?"接收完成"           
                  this._OnRead(_hSocket, this.TmpData)
-*!*	                  lOCAL szHead
-*!*	                szHead = [HTTP/1.1 200 OK] + 0h0D0A +;
-*!*	                 [Content-Type: ]+[text/html] + 0h0D0A+; 
-*!*	                 [Access-Control-Allow-Origin:*]+ 0h0D0A
-*!*	                 szHead = szHead +[Content-Length: ] + "2" + 0h0D0A0D0A+CHR(13)+CHR(13)
-*!*					IF send(_hSocket, @szHead , LEN(szHead ), 0) == -1
-*!*					     IF WSAGetLastError() == 10035    && WSAEWOULDBLOC
-*!*					     ?"网络繁忙"
-*!*					     ENDIF
-*!*					ENDIF             
-                * this._SendData(_hSocket, szHead)
-                * this._SendData(_hSocket, _senddata)
                  closesocket(_hSocket)
                  this.TmpData=""
                  this.boundary =""
-             ENDIF 
-              
-            ENDCASE      
+                 this.DataLen=0
+	             this.RevDataLen=0 &&第一的
+               ENDIF   
+                                
+            ENDCASE 
         ELSE
-             closesocket(_hSocket)
-        ENDIF
+            closesocket(_hSocket)
+        ENDIF 
     ENDPROC
 
     * 网络消息处理
@@ -560,45 +566,79 @@ DEFINE CLASS SocketHttp AS Session
     
     PROCEDURE Qiyu_FormParams
     LPARAMETERS  _paramkey,_hSocket
-   	tcHttpheader=urldecode(thisform.HttpHead1.httpheader)
-    
 	Private lcType, llFind, lcSeparator, lnArrayRow, laMyArray,lcKey
 	Local lcType, llFind, lcSeparator, lnArrayRow, laMyArray[1],lcReturn
-    IF thisform.HttpHead1.Content_Type!="application/x-www-form-urlencoded"
-		m.lcType = [boundary]
-		m.lnArrayRow = Alines(laMyArray, m.tcHttpheader)
-	    lcReturn=""
-		For m.i = 1 To m.lnArrayRow
-		*_screen.Print(m.laMyArray[m.i])
-		If [name=] $ laMyArray[m.i]
-	        lcKey=Substr(m.laMyArray[m.i], At("name=",m.laMyArray[m.i]) + 6, Len(m.laMyArray[m.i]) - At("name=",m.laMyArray[m.i]) - 6)
-		    IF UPPER(lcKey)==upper(_paramkey)
-		    *	? [变量值:] + m.laMyArray[m.i+2]
-		   	 lcReturn=STRCONV(m.laMyArray[m.i+2],11)
-		   	EXIT 
-		    ENDIF 
-		ENDIF 	
-	ENDFOR
-	ELSE
-	 *--取出后一行
-	 LOCAL lnStart,lnLen,lcResult,_cResult
-	lnStart=AT(0h0D0A0D0A, tcHttpheader)
-    lnLen=LEN(tcHttpheader)
-    lcResult=STRCONV(SUBSTR(tcHttpheader,lnStart+4,lnLen-5),11)
-    _cResult=""
-    *按& 分列成数组
-	ALINES(_laarray,lcResult,2,"&")
-	FOR i=1 TO alen(_laarray)
-	  *--  =号前为key,后为value
-	  _nstart=AT("=",_laarray[i])
-	  _cKey=SUBSTR(_laarray[i],1,_nstart-1)
-	  *_cValue=SUBSTR(laarray[i],_nstart+1,LEN(_laarray[i])-_nstart)
-	  IF _cKey==_paramkey
-	    _cResult=SUBSTR(_laarray[i],_nstart+1,LEN(_laarray[i])-_nstart)
-	  ENDIF 
-	NEXT 
-      lcReturn=_cResult
-	ENDIF 
+   	tcHttpheader=Thisform.HttpHead1.httpheader  &&记得要urldecode
+ 	STRTOFILE(tcHttpheader,"2.txt")
+   	Do Case
+   		Case Upper("application/x-www-form-urlencoded")$Upper(Thisform.HttpHead1.Content_Type)  &&键值对
+   			*--取出后一行
+   			tcHttpheader=urldecode(tcHttpheader)  &&先解码
+   			Local lnStart,lnLen,lcResult,_cResult
+   			lnStart=At(0h0D0A0D0A, tcHttpheader)
+   			lnLen=Len(tcHttpheader)
+   			*lcResult=STRCONV(SUBSTR(tcHttpheader,lnStart+4,lnLen-5),11)
+   			lcResult=Substr(tcHttpheader,lnStart+4,lnLen-5)
+   			_cResult=""
+   			*按& 分列成数组
+   			Alines(_laarray,lcResult,2,"&")
+   			For i=1 To Alen(_laarray)
+   				*--  =号前为key,后为value
+   				_nstart=At("=",_laarray[i])
+   				_cKey=Substr(_laarray[i],1,_nstart-1)
+   				*_cValue=SUBSTR(laarray[i],_nstart+1,LEN(_laarray[i])-_nstart)
+   				If _cKey==_paramkey
+   					_cResult=Substr(_laarray[i],_nstart+1,Len(_laarray[i])-_nstart)
+   				Endif
+   			Next
+   			lcReturn=_cResult
+   		Case Upper("multipart/form-data")$Upper(Thisform.HttpHead1.Content_Type)&&formdata格式
+   			m.lcType = [boundary]
+   			m.lnArrayRow = Alines(laMyArray, m.tcHttpheader)
+   			lcReturn=""
+   			For m.i = 1 To m.lnArrayRow
+   				*_screen.Print(m.laMyArray[m.i])
+   				If [name=] $ laMyArray[m.i]
+   					lcKey=Substr(m.laMyArray[m.i], At("name=",m.laMyArray[m.i]) + 6, Len(m.laMyArray[m.i]) - At("name=",m.laMyArray[m.i]) - 6)
+   					If Upper(lcKey)==Upper(_paramkey)
+   						*	? [变量值:] + m.laMyArray[m.i+2]
+   						*lcReturn=STRCONV(m.laMyArray[m.i+2],11)
+   						lcReturn=m.laMyArray[m.i+2]
+   						Exit
+   					Endif
+   				Endif
+            ENDFOR 
+   			Case Upper("application/x-www-form-urlencoded")$Upper(Thisform.HttpHead1.Content_Type) &&json格式
+   				Error Thisform.HttpHead1.Content_Type+"不支持获取值"
+   			Otherwise
+      			*--取出后一行
+   			tcHttpheader=urldecode(tcHttpheader)  &&先解码
+   			Local lnStart,lnLen,lcResult,_cResult
+   			lnStart=At(0h0D0A0D0A, tcHttpheader)
+   			lnLen=Len(tcHttpheader)
+   			*lcResult=STRCONV(SUBSTR(tcHttpheader,lnStart+4,lnLen-5),11)
+   			lcResult=Substr(tcHttpheader,lnStart+4,lnLen-5)
+   			_cResult=""
+   			*按& 分列成数组
+   			Alines(_laarray,lcResult,2,"&")
+   			For i=1 To Alen(_laarray)
+   				*--  =号前为key,后为value
+   				_nstart=At("=",_laarray[i])
+   				_cKey=Substr(_laarray[i],1,_nstart-1)
+   				*_cValue=SUBSTR(laarray[i],_nstart+1,LEN(_laarray[i])-_nstart)
+   				If _cKey==_paramkey
+   					_cResult=Substr(_laarray[i],_nstart+1,Len(_laarray[i])-_nstart)
+   				Endif
+   			Next
+   			lcReturn=_cResult
+   		Endcase
+
+*!*		
+*!*	    IF thisform.HttpHead1.Content_Type!="application/x-www-form-urlencoded"
+
+*!*		ENDFOR
+*!*		ELSE
+	
     RETURN lcReturn
     ENDPROC 
    
@@ -629,7 +669,7 @@ DEFINE CLASS SocketHttp AS Session
 *!*		Endfor 
     lnStart=AT(0h0D0A0D0A, tcHttpheader)
     lnLen=LEN(tcHttpheader)
-    lcResult=STRCONV(SUBSTR(tcHttpheader,lnStart+4,lnLen-5),11)
+    lcResult=SUBSTR(tcHttpheader,lnStart+4,lnLen-5)
     RETURN lcResult
     ENDPROC 
     
@@ -638,7 +678,9 @@ DEFINE CLASS SocketHttp AS Session
         LOCAL szHead
                 szHead = [HTTP/1.1 200 OK] + 0h0D0A +;
                  [Content-Type: ]+this.contenttype + 0h0D0A+; 
-                 [Access-Control-Allow-Origin:*]+ 0h0D0A
+                 [Access-Control-Allow-Origin:*]+ 0h0D0A+;
+                 [X-Powered-By:QiyuHttpServer1.0]+0h0D0A 
+                 
                    IF !EMPTY(this.writecookie)
 			        szHead = szHead + this._writeHttpHeader+0h0D0A 
 			        this._writeHttpHeader=""

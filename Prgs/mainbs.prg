@@ -77,7 +77,11 @@ Try
 	oControll=Newobject(m.RequestObject,m.classfile)
 	oCtlObjType=oControll.ParentClass
 	*oControll=Newobject(m.RequestObject,m.classfile,"",lcappuser)  && appuser 代表微信API专用类
-	cProc=fws_request("proc")
+	cProc=fws_request("proc")	
+	IF EMPTY(cProc)
+	  cProc="onDefault"		  
+	ENDIF 
+	
 	oFrmMain.log("proc="+cProc)
 	*--判断是父类wxapi weixinfsp
 	Do Case
@@ -96,7 +100,8 @@ Try
 			oControll.appuser=lcappuser
 			* OTHERWISE
 			* oControll=Newobject(m.RequestObject,m.classfile)  && BS框架再考虑了 如果能找到类库，则类执行运算,如果不是，则由默认类去执行
-	Endcase
+	ENDCASE
+	
 	lcCmd="oControll."+cProc+"()"
 	If !Pemstatus(oControll,cProc,5)
 		Error m.RequestObject+"."+cProc+"类的方法不存在"

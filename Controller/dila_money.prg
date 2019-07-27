@@ -2,11 +2,21 @@
 DEFINE CLASS dila_money as Session
 
   PROCEDURE topup && 充值-------------------------
-    userid1 = httpqueryparams("userid")
+    yh1 = httpqueryparams("phone")
     czje1 = httpqueryparams("deposit") && 充值卡金额
+    *cs1 = httpqueryparams("times")
+    IF VAL(czje1) = 299
+      cs1 = 10
+    ENDIF 
+    IF VAL(czje1) = 1280
+      cs1 = 50
+    ENDIF 
+    IF VAL(czje1) = 5380
+      cs1 = 999
+    ENDIF 
     *写入充值记录表moneys
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-	  INSERT INTO [moneys] (userid,money,createtime,moneytype) VALUES (<<userid1>>,<<czje1>>,getdate(),1)
+	  INSERT INTO [moneys] (loginName,money,createtime,type,times) VALUES (<<yh1>>,<<czje1>>,getdate(),1,<<cs1>>)
 	ENDTEXT
 	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
 	IF oDBSQLhelper.ExeCuteSQL(lcSQLCmd)<0
@@ -14,7 +24,7 @@ DEFINE CLASS dila_money as Session
 	ENDIF	
 	*修改个人余额表  user
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-      UPDATE [user] SET balance = balance+<<czje1>> WHERE userid = <<userid1>>
+      UPDATE [user] SET balance = balance+<<czje1>>,times=times+<<cs1>> WHERE loginName = '<<yh1>>'
 	ENDTEXT
 	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
 	IF oDBSQLhelper.ExeCuteSQL(lcSQLCmd)<0
@@ -24,10 +34,12 @@ DEFINE CLASS dila_money as Session
   ENDPROC 
 
   PROCEDURE consumption && 消费记录-------------------------
-    userid1 = httpqueryparams("userid")
+    yh1 = httpqueryparams("phone")
+
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-      SELECT paytype,createtime,moneytype,money FROM [moneys] WHERE userid='<<userid1>>'
-	ENDTEXT
+      SELECT createtime,[moneys].money,[moneys].times,machinename FROM [moneys] left outer join machine ON [moneys].code = [machine].code where loginname='<<yh1>>'
+    ENDTEXT	
+
  	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
  	IF oDBSQLhelper.SQLQuery(lcSQLCmd,"tmp")<0
 	  ERROR oDBSQLhelper.errmsg
