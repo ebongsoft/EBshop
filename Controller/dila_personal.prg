@@ -56,9 +56,14 @@ DEFINE CLASS dila_personal as Session
   PROCEDURE apply_agent && 代理商申请----------------------------
     yh1 = httpqueryparams("phone")
     zsxm1 = httpqueryparams("realname")
+    sj1 = httpqueryparams("tel")
+    sfz1 = httpqueryparams("idcard")
+    wx1 = httpqueryparams("wechat")
     sqjb1 = httpqueryparams("agent")
     sjyqr1 = httpqueryparams("p_agent")  && 邀请人=推荐人
-    sj1 = httpqueryparams("tel")
+    pp1 = httpqueryparams("brand")  && 品牌
+    
+    IF pp1 = "黛尔思/密卡丝"
     *根据userid获取当前级别和推荐人ID
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE
       SELECT rankid FROM [user] WHERE LoginName='<<yh1>>'
@@ -68,6 +73,7 @@ DEFINE CLASS dila_personal as Session
       ERROR oDBSQLhelper.errmsg
     ENDIF 
     dqjb1 = rankid && 当前级别
+    ENDIF 
     
     *根据wdsj1获取我上级的loginName
     TEXT TO lcSQLCmd2 NOSHOW TEXTMERGE

@@ -148,34 +148,5 @@ DEFINE CLASS dila_personal as Session
     	
 	RETURN '{"errno":0,"errmsg":"ok"}'
   ENDPROC 
-  
-  PROCEDURE lianwuyi
-	** 在界面添加浏览器。
-	*!*    oXML = Createobject("WinHttp.WinHttpRequest.5.1") &&  XP或者98只能调用老版本的5.1浏览器内核。
-	oXML = Createobject("Microsoft.XMLHTTP")
-
-	*** 设置变量。
-	appkey = "27aad8095a2a8b170bf3939f1b7b0d6c"
-	appid = "1400076711"
-	strMobile = "15986989933" && tel 的 mobile 字段的内容
-	strAppKey = "27aad8095a2a8b170bf3939f1b7b0d6c"  && sdkappid 对应的 appkey，需要业务方高度保密
-	strRand = ALLTRIM(STR(INT(RAND()*9000000000)+1000000000)) && URL 中的 random 字段的值
-
-	Set library to myFll
-	strTime =ALLTRIM(STR(tton(DATETIME()-28800))) && UNIX 时间戳 
-	Set library to
-
-	Set library TO vfpencryption71
-	sigsha256 = "appkey="+appkey+"&random="+strRand+"&time="+strTime+"&mobile="+strMobile 
-	sig = STRCONV(Hash(sigsha256,2),15) && App 凭证
-	Set library to
-
-	sign = "你好，这里是宜邦软件使用的腾讯科技技术。" && 短信签名内容
-	tel = "+8615986989933" && 国际电话号码
-	tpl_id = "19" &&  模板 ID
-	   RETURN strTime + " "+sig
-	  
-  ENDPROC 
-
 
 ENDDEFINE

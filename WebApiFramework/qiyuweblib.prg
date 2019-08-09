@@ -1,4 +1,5 @@
 *--兼容猫框调试服务器和木瓜的fws.dll
+*--修正getupfile 回车符 2019.8.7
 Function HttpQueryParams
 Lparameters cParam1,iConnid
 Local cResult
@@ -10,7 +11,7 @@ If Inlist(_vfp.StartMode,0) &&调试环境
 	cResult=oFrmMain.SocketHttp1.Qiyu_Request(STRCONV(cParam1,9),iConnid)	
 	If Empty(cResult)
 		*cResult=HttpGetFormString(cParam1)		
-		cResult=oFrmMain.SocketHttp1.Qiyu_FormParams(cParam1,iConnid)		
+		cResult=oFrmMain.SocketHttp1.Qiyu_FormParams(STRCONV(cParam1,9),iConnid)		
 	ENDIF
 	cResult=STRCONV(cResult,11)
 Else
@@ -26,7 +27,7 @@ Lparameters m.iConnID
 Local cResult
 cResult=""
 If Inlist(_vfp.StartMode,0) &&调试环境
-	cResult=oFrmMain.SocketHttp1.HttpGetPostData(m.iConnID)
+	cResult=STRCONV(oFrmMain.SocketHttp1.HttpGetPostData(m.iConnID),11)
 Else
 	cResult=fws_binread() &&正式环境
 	cResult=STRCONV(cResult,11)
@@ -216,12 +217,12 @@ Function GetUpFile(iConnID)
 					m.cFieldData =substr(aForm(i),nStart+4,nEnd-nStart-4-2)  &&数据
 					*?Len(cFieldData),nStart-3,Len(aform(i)),nEnd
 	                ADDPROPERTY(oField,"FieldData",m.cFieldData) &&数据
-					STRTOFILE(cFieldData,"xx.jpg")	
+					*STRTOFILE(cFieldData,"xx.jpg")	
 					m.oData.add(oField,m.cFieldName)
 			   ELSE  
 					LOCAL nEnd
 					nEnd=len(aForm(i)) &&求出最后分割符的侠置				
-					m.cFieldData =substr(aForm(i),nStart+4,nEnd-nStart-4)  &&数据
+					m.cFieldData =substr(aForm(i),nStart+4,nEnd-nStart-4-1)  &&数据
 					*?Len(cFieldData),nStart-3,Len(aform(i)),nEnd
 	                ADDPROPERTY(oField,"FieldData",m.cFieldData) &&数据
 					*STRTOFILE(cFieldData,"xx.jpg")	

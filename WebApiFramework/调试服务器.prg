@@ -1,4 +1,5 @@
 *--  作者:加菲猫
+*--  2019.5.30 ctl类增加onDefault方法,当URL没有PROC参数时,调用此onDefault方法
 *--  2019.5.30 修正上传文件POST数据过小,没有赋于TmpData属性
 *--  2019.5    修正Qiyu_FormParams判定content-type方法
 
@@ -167,16 +168,14 @@ DEFINE CLASS WebServerForm As Form
 		 
 		  *?cFilePath,m.RequestExtName,this.getContentType(m.RequestExtName)
           cResult=FILETOSTR(cFilePath)
-         * cResult=FILETOSTR("wwwroot\"+m.RequestObject+"."+m.RequestExtName)                 
+         * cResult=FILETOSTR("wwwroot\"+m.RequestObject+"."+m.RequestExtName)        
          Thisform.SocketHttp1.contenttype=Thisform.getContentType(m.RequestExtName)        
          IF EMPTY( Thisform.SocketHttp1.contenttype)
             Thisform.SocketHttp1.contenttype="text\html"
          ENDIF 
           Thisform.SocketHttp1.Qiyu_Write(cResult,iConnid)
-          Thisform.SocketHttp1.contenttype="text\html"
           CATCH TO ex
             Thisform.SocketHttp1.Qiyu_Write(m.RequestObject+"."+m.RequestExtName+ex.message,iConnid)
-             Thisform.SocketHttp1.contenttype="text\html"
             oFrmMain.log(m.RequestObject+"."+m.RequestExtName+ex.message)
           ENDTRY 
           RETURN
@@ -191,9 +190,7 @@ DEFINE CLASS WebServerForm As Form
 			*--得到参数 调用类方法
 	
 		    cProc= Thisform.SocketHttp1.Qiyu_Request("proc")
-		    IF EMPTY(cProc)
-			  cProc="onDefault"			
-			ENDIF 
+		    
 			*--判断是父类wxapi weixinfsp
 			Do Case
 				Case Upper(oControll.ParentClass)==Upper("weixinApi")
@@ -214,8 +211,13 @@ DEFINE CLASS WebServerForm As Form
 					* oControll=Newobject(m.RequestObject,m.classfile)  && BS框架再考虑了 如果能找到类库，则类执行运算,如果不是，则由默认类去执行
 			Endcase
 								
-
-		    lcCmd="oControll."+cProc+"()"
+			IF !EMPTY(cProc)
+                lcCmd="oControll."+cProc+"()"   		    			   
+			Else   
+			    cProc="onDefault"
+		        lcCmd="oControll.onDefault()"  && 给一个用于支付 		    			   	
+			ENDIF 		
+	
 		    ofrmMain.Log(cUrlPath+CHR(13)+oControll.Name+"."+cProc+"接收成功")  &&写入日志
 			IF !PEMSTATUS(oControll,cProc,5)
 			  ERROR m.RequestObject+"."+cProc+"类的方法不存在"
@@ -234,7 +236,6 @@ DEFINE CLASS WebServerForm As Form
 					m.RetHtml=Transform(&lccmd)
 					*ofrmMain.Log(WebGetUri()+Chr(13)+oControll.Name+"."+cProc+"调用成功")  &&写入日志
 					Thisform.SocketHttp1.Qiyu_Write(strconv(m.RetHtml,9),m.iConnID) &&转码成UTF-8
-					 Thisform.SocketHttp1.contenttype="text\html"
 					*fws_write(m.RetHtml)    &&将处理结果输出给浏览器
 					ofrmMain.Log(cUrlPath+CHR(13)+oControll.Name+"."+cProc+"调用成功")  &&写入日志
 			Endcase
@@ -253,7 +254,6 @@ DEFINE CLASS WebServerForm As Form
 			ofrmMain.Log(objall.tostring())
 			*HttpWrite(iConnid,STRCONV(objall.tostring(),9))				
 			Thisform.SocketHttp1.Qiyu_Write(STRCONV(objall.tostring(),9),iConnID)
-			 Thisform.SocketHttp1.contenttype="text\html"
 		Endtry
          
         *thisform._WriteMsg(szReadBuf)                         &&调试信息
@@ -608,10 +608,10 @@ DEFINE CLASS SocketHttp AS Session
    					Endif
    				Endif
             ENDFOR 
-   			Case Upper("application/x-www-form-urlencoded")$Upper(Thisform.HttpHead1.Content_Type) &&json格式
-   				Error Thisform.HttpHead1.Content_Type+"不支持获取值"
+   			*Case Upper("application/x-www-form-urlencoded")$Upper(Thisform.HttpHead1.Content_Type) &&json格式
+   				*Error Thisform.HttpHead1.Content_Type+"不支持获取值"
    			Otherwise
-      			*--取出后一行
+     			*--取出后一行  按键值对取值
    			tcHttpheader=urldecode(tcHttpheader)  &&先解码
    			Local lnStart,lnLen,lcResult,_cResult
    			lnStart=At(0h0D0A0D0A, tcHttpheader)
