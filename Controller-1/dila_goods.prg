@@ -4,17 +4,13 @@ DEFINE CLASS dila_goods As Session
 
   PROCEDURE mallhome && 商城首页---------------------------
     yh1 =  httpqueryparams("phone")
-    sj1 =  VAL(httpqueryparams("prentid"))
-    IF sj1 <> 0
-	  oDBSQLhelper=NEWOBJECT("MSSQLHelper","MSSQLHelper.prg") && 框架自带
-      IF oDBSQLhelper.SQLQuery("SELECT goodsname,goodsimg,marketprice,goodsid from goods where issale=1","tmp")<0 && marketprice 市场价，issale 是否上架
-	    ERROR oDBSQLhelper.errmsg
-	  ENDIF 
-	  RETURN cursortojson("tmp")
-	ELSE 
-	  RETURN "请先升级为代理商"
-    ENDIF 
-
+    sj1 =  httpqueryparams("parentid") && 上级id，即推荐人ID
+    cp1 =  httpqueryparams("goodsid")
+	oDBSQLhelper=NEWOBJECT("MSSQLHelper","MSSQLHelper.prg") && 框架自带
+    IF oDBSQLhelper.SQLQuery("SELECT goodsname,goodsimg,marketprice,goodsid from goods where issale=1","tmp")<0 && marketprice 市场价，issale 是否上架
+	  ERROR oDBSQLhelper.errmsg
+	ENDIF 
+	RETURN cursortojson("tmp")
   ENDPROC 
   
   PROCEDURE mallhomelist && 商城产品明细---------------------------

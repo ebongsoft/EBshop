@@ -44,11 +44,11 @@ DEFINE CLASS dila_order as Session
     RETURN cursortojson("tmp")
   ENDPROC 
 
-  PROCEDURE order && 显示订单产品-------------------------
+  PROCEDURE order && 显示购物车里的产品到下单界面-------------------------
     yh1 = httpqueryparams("phone")
 
 	TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-	   select [goods].goodsname,[goods].brands,[goods].marketprice,[orders].goodsid,[orders].num [goods].marketprice*[orders].num as total from [orders] left OUTER JOIN [goods] on [orders].goodsid=[goods].goodsid where [orders].loginName='<<yh1>>'
+	   select [goods].goodsname,[goods].brands,[goods].marketprice,[orders].goodsid,[orders].num,[goods].marketprice*[orders].num as total from [orders] left OUTER JOIN [goods] on [orders].goodsid=[goods].goodsid where [orders].loginName='<<yh1>>'
 	ENDTEXT
  	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
  	IF oDBSQLhelper.SQLQuery(lcSQLCmd,"tmp")<0
@@ -57,25 +57,54 @@ DEFINE CLASS dila_order as Session
     RETURN cursortojson("tmp")
   ENDPROC   
   
+  PROCEDURE all_orders && 显示全部订单-------------------------
+    yh1 = httpqueryparams("phone")
+
+	TEXT TO lcSQLCmd NOSHOW TEXTMERGE
+	    SELECT orderNo,status,SUM(totalmoney) as totalmoney from [orders] where loginName='<<yh1>>' GROUP BY orderNo,status
+	ENDTEXT
+ 	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
+ 	IF oDBSQLhelper.SQLQuery(lcSQLCmd,"tmp")<0
+	  ERROR oDBSQLhelper.errmsg
+	ENDIF
+    RETURN cursortojson("tmp")
+  ENDPROC   
+
+  PROCEDURE dfh_orders && 显示待发货-------------------------
+    yh1 = httpqueryparams("phone")
+
+	TEXT TO lcSQLCmd NOSHOW TEXTMERGE
+	    SELECT orderNo,status,SUM(totalmoney) as totalmoney from [orders] where loginName='<<yh1>>' AND status='待发货' GROUP BY orderNo,status
+	ENDTEXT
+ 	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
+ 	IF oDBSQLhelper.SQLQuery(lcSQLCmd,"tmp")<0
+	  ERROR oDBSQLhelper.errmsg
+	ENDIF
+    RETURN cursortojson("tmp")
+  ENDPROC 
+
+  PROCEDURE over_orders && 显示全部订单-------------------------
+    yh1 = httpqueryparams("phone")
+
+	TEXT TO lcSQLCmd NOSHOW TEXTMERGE
+	    SELECT orderNo,status,SUM(totalmoney) as totalmoney from [orders] where loginName='<<yh1>>' AND status='已完成' GROUP BY orderNo,status
+	ENDTEXT
+ 	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
+ 	IF oDBSQLhelper.SQLQuery(lcSQLCmd,"tmp")<0
+	  ERROR oDBSQLhelper.errmsg
+	ENDIF
+    RETURN cursortojson("tmp")
+  ENDPROC 
 
   PROCEDURE addorder && 下单【结算】-------------------------
     yh1 = httpqueryparams("phone")
-    cp1 = httpqueryparams("goodsid")
-    cpmc1 = httpqueryparams("goodsname")
-    sl1 = httpqueryparams("num")
     dz1 = httpqueryparams("addressid")
-    psfs1 = httpqueryparams("paytype")
-    IF ALLTRIM(psfs1)='到付'
-      psfs1 = 1
-    ELSE 
-      psfs1 = 0
-    ENDIF 
-    yf1 = httpqueryparams("freight")
     ly1 = httpqueryparams("remark")
+    ddh1 = httpqueryparams("orderNo")
 *!*	    fjid1 = httpqueryparams("parentid")
     *查询我的收货地址       
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-		INSERT INTO [orders] (loginName,goodsid,num,goodsname,addressid,paytype,freight,remark) VALUES ('<<yh1>>',<<cp1>>,<<sl1>>,'<<cpmc1>>',<<dz1>>,<<psfs1>>,<<yf1>>,'<<ly1>>')
+		UPDATE [orders] SET addressid='<<dz1>>',remark='<<ly1>>',status='已提交上级' WHERE orderNo='<<ddh1>>'
     ENDTEXT
 	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
 	IF oDBSQLhelper.ExeCuteSQL(lcSQLCmd)<0

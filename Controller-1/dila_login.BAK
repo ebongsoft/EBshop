@@ -100,7 +100,6 @@ DEFINE CLASS dila_login as Session
   ENDPROC 
   
   PROCEDURE changepassword && 修改密码------------------------
-    PRIVATE yh1,xmm1,zcsr1,yzm1
     *** 获取变量
     yh1=httpqueryparams("tel") 
     yzm1 = VAL(httpqueryparams("code")) && 验证码
@@ -123,6 +122,7 @@ DEFINE CLASS dila_login as Session
     IF ALLTRIM(STR(ss2)) <> ALLTRIM(STR(yzm1))
       ERROR "验证码错误，请重新获取或联系客服"
     ENDIF 
+    RETURN "返回正确"
 	**************
 	*** 保存数据
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE

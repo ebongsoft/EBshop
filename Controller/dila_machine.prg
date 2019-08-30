@@ -179,7 +179,7 @@ DEFINE CLASS dila_machine as Session
     debug1 ="ture"                                                           && 【！】
     appid1 = "wxca6a45d72acecd60"                                            && 【！】
     secret1= "da2a69345b8bf0095fe8f7b346399d21"
-    
+
     *** 【获取access_token】    
     cUrl="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential"
 	xmlhttp=Createobject("Microsoft.XMLHTTP")
@@ -189,7 +189,7 @@ DEFINE CLASS dila_machine as Session
     cJson = xmlhttp.responseText && 将返回来的数据赋值到cJson里
 	oJSON=foxjson_parse(cJson)
 	access_token1 = ALLTRIM(oJson.item("access_token"))	
-    * RETURN access_token
+    RETURN access_token
     
     *** 【获取jsapi_ticket】    
     cUrl="https://api.weixin.qq.com/cgi-bin/ticket/getticket?"

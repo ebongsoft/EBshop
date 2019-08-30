@@ -7,7 +7,7 @@ DEFINE CLASS dila_personal as Session
       ERROR '没有获取到注册号'
     ENDIF 
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-      SELECT loginName,times,rankname,usercard,inviterid,parentid from [user] left outer join rank ON [user].rankid = [rank].rankid  where loginname='<<yh1>>'
+      SELECT loginName,times,rankname,usercard from [user] left outer join rank ON [user].rankid = [rank].rankid  where loginname='<<yh1>>'
 	ENDTEXT
  	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
  	IF oDBSQLhelper.SQLQuery(lcSQLCmd,"personal")<0

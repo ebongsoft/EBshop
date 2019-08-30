@@ -4,7 +4,7 @@ DEFINE CLASS dila_login as Session
   PROCEDURE login && 登录-------------------------
     PRIVATE yh1,mm1
     *** 获取变量
-    yh1=httpqueryparams("phone")
+    yh1=httpqueryparams("tel")
     mm1=md5(httpqueryparams("password"))
     *** 查询注册号是否存在
 	oDBSQLhelper=NEWOBJECT("MSSQLHelper","MSSQLHelper.prg")
@@ -100,7 +100,6 @@ DEFINE CLASS dila_login as Session
   ENDPROC 
   
   PROCEDURE changepassword && 修改密码------------------------
-    PRIVATE yh1,xmm1,zcsr1,yzm1
     *** 获取变量
     yh1=httpqueryparams("tel") 
     yzm1 = VAL(httpqueryparams("code")) && 验证码

@@ -6,12 +6,15 @@ DEFINE CLASS dila_carts as Session
     yh1 = httpqueryparams("phone")
     *查询我的收货地址
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-      SELECT [goods].goodsid,[goods].goodsname,[goods].brands,[goods].goodsstock,[goods].goodsunit,[goods].marketprice as money FROM [carts] left outer join goods ON [carts].goodsid = [goods].goodsid where loginname='<<yh1>>'  
+      SELECT [goods].goodsid,[goods].goodsname,[goods].brands,[goods].goodsstock,[goods].goodsunit,[carts].num,[goods].marketprice,[carts].num*[goods].marketprice as money,[goods].marketprice as totalmoney FROM [carts] left outer join goods ON [carts].goodsid = [goods].goodsid where loginname='<<yh1>>'  
     ENDTEXT
  	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
  	IF oDBSQLhelper.SQLQuery(lcSQLCmd,"tmp")<0
       ERROR oDBSQLhelper.errmsg
     ENDIF 
+    SELECT tmp 
+    SUM money TO money1
+    REPLACE ALL totalmoney WITH money1
     RETURN cursortojson("tmp")
   ENDPROC 
 
@@ -23,15 +26,15 @@ DEFINE CLASS dila_carts as Session
     *** 查询	
 	oDBSQLhelper=NEWOBJECT("MSSQLHelper","MSSQLHelper.prg")
     ss1 = oDBSQLhelper.GetSingle(stringformat("SELECT COUNT(*) FROM [carts] WHERE loginName='{1}' and goodsid={2}",yh1,cpid1))
-	IF ss1>0
+	IF ss1>0  && 有这款产品
 	  *** 修改数据
       TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-	    UPDATE [carts] SET num=0,marketprice=<<jg1>> WHERE loginName='<<yh1>>' AND goodsid=<<cpid1>>
+	    UPDATE [carts] SET num=num+1,marketprice=<<jg1>> WHERE loginName='<<yh1>>' AND goodsid=<<cpid1>>
 	  ENDTEXT
 	ELSE 
 	  *** 保存数据
 	  TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-		INSERT INTO [carts] (loginName,goodsid,num,marketprice) VALUES ('<<yh1>>',<<cpid1>>,0,<<jg1>>)
+		INSERT INTO [carts] (loginName,goodsid,num,marketprice) VALUES ('<<yh1>>',<<cpid1>>,1,<<jg1>>)
 	  ENDTEXT	
 	ENDIF 
 	
@@ -89,14 +92,23 @@ DEFINE CLASS dila_carts as Session
 	RETURN '{"errno":0,"errmsg":"ok"}'
   ENDPROC 
   
-  PROCEDURE order_cart && 购物车下单-------------------------
+  PROCEDURE order_cart && 购物车[下单]-------------------------
     yh1 = httpqueryparams("phone")
-    cpid1=VAL(httpqueryparams("goodsid"))
-    num1=VAL(httpqueryparams("num"))
-    ze1 = VAL(httpqueryparams("totalmoney"))
-    *** 保存数据
+    ddh1 = Ttoc(Datetime(),1)+ALLTRIM(STR(SECONDS()*1000))  &&订单号不能重复,最好到毫秒	
+*!*	    xz1 = ALLTRIM(httpqueryparams("select"))
+*!*	    
+*!*	    nwordscount=getwordcount(xz1," ")
+*!*	    
+*!*	    RETURN nwordscount
+*!*	    FOR i=1 TO nwordscount
+*!*	      ztm1 = GETWORDNUM(tm1,i," ")
+*!*	    ENDFOR
+    
+    *** 赋值购物车数据到订单表
     TEXT TO lcSQLCmd NOSHOW TEXTMERGE
-      INSERT INTO [orders] (loginName,goodsid,num,totalmoney) VALUES ('<<yh1>>',<<cpid1>>,<<num1>>,<<ze1>>)
+      INSERT INTO [orders] (goodsid,num,loginName) select goodsid,num,loginName from [carts] where loginName=<<yh1>>
+      DELETE FROM [CARTS] WHERE loginName=<<yh1>>
+      UPDATE [orders] SET orderNo=<<ddh1>>,createtime=getdate() WHERE loginName=<<yh1>>
     ENDTEXT	
 	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
 	IF oDBSQLhelper.ExeCuteSQL(lcSQLCmd)<0

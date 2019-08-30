@@ -45,16 +45,15 @@ DEFINE CLASS dila_machine as Session
 	  ERROR "账户余额次数不足，请充值"
 	ENDIF 
 
-*!*		*** 【获取token】------------------------------------------
-*!*		cUrl="https://twwl.sailafeinav.com/shemachineapi/gettoken/"
-*!*		xmlhttp=Createobject("Microsoft.XMLHTTP")
-*!*		xmlhttp.Open("POST", ALLTRIM(cUrl), .F.)
-*!*		xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-*!*		xmlhttp.send("account="+zh1+"&key="+my1)
-*!*	    cJson = xmlhttp.responseText && 将返回来的数据赋值到cJson里
-*!*		oJSON=foxjson_parse(cJson)
-*!*		token1 = ALLTRIM(oJson.item("token"))	
-    token1="123456"
+	*** 【获取token】------------------------------------------
+	cUrl="https://twwl.sailafeinav.com/shemachineapi/gettoken/"
+	xmlhttp=Createobject("Microsoft.XMLHTTP")
+	xmlhttp.Open("POST", ALLTRIM(cUrl), .F.)
+	xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+	xmlhttp.send("account="+zh1+"&key="+my1)
+    cJson = xmlhttp.responseText && 将返回来的数据赋值到cJson里
+	oJSON=foxjson_parse(cJson)
+	token1 = ALLTRIM(oJson.item("token"))	
     *RETURN token1
 
      *** 【获取机器状态states】------------------------------
@@ -143,16 +142,15 @@ DEFINE CLASS dila_machine as Session
     fwqbm1 = ALLTRIM(num)
     *RETURN cursortojson("account")
 
-*!*		*** 【获取token】------------------------------------------
-*!*		cUrl="https://twwl.sailafeinav.com/shemachineapi/gettoken/"
-*!*		xmlhttp=Createobject("Microsoft.XMLHTTP")
-*!*		xmlhttp.Open("POST", ALLTRIM(cUrl), .F.)
-*!*		xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-*!*		xmlhttp.send("account="+zh1+"&key="+my1)
-*!*	    cJson = xmlhttp.responseText && 将返回来的数据赋值到cJson里
-*!*		oJSON=foxjson_parse(cJson)
-*!*		token1 = ALLTRIM(oJson.item("token"))	
-    token1="123456"
+	*** 【获取token】------------------------------------------
+	cUrl="https://twwl.sailafeinav.com/shemachineapi/gettoken/"
+	xmlhttp=Createobject("Microsoft.XMLHTTP")
+	xmlhttp.Open("POST", ALLTRIM(cUrl), .F.)
+	xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
+	xmlhttp.send("account="+zh1+"&key="+my1)
+    cJson = xmlhttp.responseText && 将返回来的数据赋值到cJson里
+	oJSON=foxjson_parse(cJson)
+	token1 = ALLTRIM(oJson.item("token"))	
     *RETURN token1
 
     *** 【重启机器restartmachine】-----------------------------------
@@ -172,63 +170,5 @@ DEFINE CLASS dila_machine as Session
     ENDIF 
     	    
   ENDPROC
-
-  PROCEDURE scanQRCode && 【启动像机扫二维码】---------------------------------------
-
-    *LOCATE appid1,secret1
-    debug1 ="ture"                                                           && 【！】
-    appid1 = "wxca6a45d72acecd60"                                            && 【！】
-    secret1= "da2a69345b8bf0095fe8f7b346399d21"
-    
-    *** 【获取access_token】    
-    cUrl="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential"
-	xmlhttp=Createobject("Microsoft.XMLHTTP")
-	xmlhttp.Open("get", ALLTRIM(cUrl), .F.)
-	xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-    xmlhttp.send("&appid="+appid1+"&secret="+secret1) 
-    cJson = xmlhttp.responseText && 将返回来的数据赋值到cJson里
-	oJSON=foxjson_parse(cJson)
-	access_token1 = ALLTRIM(oJson.item("access_token"))	
-    * RETURN access_token
-    
-    *** 【获取jsapi_ticket】    
-    cUrl="https://api.weixin.qq.com/cgi-bin/ticket/getticket?"
-	xmlhttp=Createobject("Microsoft.XMLHTTP")
-	xmlhttp.Open("get", ALLTRIM(cUrl), .F.)
-	xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-    xmlhttp.send( "access_token=" + access_token1 + "&type=jsapi") 
-    cJson1 = xmlhttp.responseText && 将返回来的数据赋值到cJson里
-	oJSON1=foxjson_parse(cJson1)
-	jsapi_ticket1 = ALLTRIM(oJson1.item("ticket"))	
-    * RETURN jsapi_ticket
-    
-    *** 【获取10位数时间戳】
-    timestamp1=ALLTRIM(STR((DATE()-{^1970-01-01})*86400+SECONDS()*1000,50,0)) && 【！】
-    
-    *** 【获取nonceStr随机串】
-    nonceStr1=SYS(2015)                                                       && 【！】
-
-    *** 【进行string1拼接】
-    string1= "jsapi_ticket="+jsapi_ticket1+"&noncestr="+nonceStr1+"&timestamp="+timestamp1+"&url="+"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential"
-    signature1=sha1(string1)
-    * RETURN signature 
-    
-    *** 【获取jsApiList需要使用的JS接口列表】
-    jsApiList1 = "['scanQRCode']"
-
-    *** 【生成接口】
-    lcjs=Createobject("foxJson")
-    *lcjs.append("url","https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential")
-    *lcjs.Append("jsapi_ticket",jsapi_ticket1 )
-	*lcjs.Append("debug","ture")
-	lcjs.Append("appId","wxca6a45d72acecd60")
-	lcjs.Append("timestamp",timestamp1)
-	lcjs.Append("nonceStr",nonceStr1)
-	lcjs.Append("signature",signature1)
-	lcjson1  = lcjs.tostring()
-	Return lcjson1
-    
-  ENDPROC 
-
 
 ENDDEFINE 
