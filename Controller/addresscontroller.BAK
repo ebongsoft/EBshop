@@ -11,15 +11,15 @@ define class AddressController as Session
       return '{"status":0,"err":"网络异常。"}'
     endif    
     * 所有地址
-    TEXT TO lcSQLCmd NOSHOW TEXTMERGE
+    text to lcSQLCmd NOSHOW TEXTMERGE
 	   select * from lr_address where uid=<<user_id1>> order by is_default desc,id desc
-	ENDTEXT
- 	oDBSQLhelper=NEWOBJECT("MSSQLhelper","MSSQLhelper.prg")
- 	IF oDBSQLhelper.SQLQuery(lcSQLCmd,"adds_list")<0
-      ERROR '{"status":0,"err":"网络异常。"}'
-    ENDIF 
-    * RETURN cursortojson("adds_list")
-    RETURN DbfToJson("adds_list")
+	endtext
+ 	oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
+ 	if oDBSQLhelper.SQLQuery(lcSQLCmd,"adds_list")<0
+      return '{"status":0,"err":"网络异常。"}'
+    endif 
+    return DbfToJson("adds_list")
   endproc
+
 
 enddefine
