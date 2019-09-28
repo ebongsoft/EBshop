@@ -1,0 +1,82 @@
+/*body*/
+*{ padding:0; margin:0;}
+html{width:100%; }
+
+body {
+	 background:#fff;
+	 height:100%;
+	 margin:0 auto;
+	 font-family:"微软雅黑",Tahoma, Geneva, sans-serif;
+	 font-size:14px;
+	 width:100%;
+	 position:relative;
+	 overflow:hidden;
+	 
+}
+
+
+
+/*浮动*/
+.float_left{ float:left;}
+.float_right{ float:right;}
+
+/*整体*/
+#main{width:100%;}
+
+@-webkit-keyframes background_bg{
+	0% {transform:scale(1); opacity:0}
+	5%{transform:scale(1); opacity:1}
+	50%{transform:scale(1.3)}
+	100%{transform:scale(1)}
+}
+.bg{
+	width:100%;
+	height:100%;
+	background:url(../images/login_bg.jpg) no-repeat top center;
+	background-size:cover;
+	text-align:center;
+	animation:background_bg 50s linear infinite;
+	animation-iteration-count:1;
+	position:absolute;
+}
+
+
+
+
+/*login*/
+@-webkit-keyframes left_box{
+	0%{ margin-left:-600px; opacity:0;}
+	40%{ margin-left:-600px; opacity:0;}
+	100%{margin-left:0; opacity:1;}
+}
+#login_box{width:840px; height:361px;margin-left:-420px; margin-top:250px; position:fixed; left:50%;}
+#login_box .limg{width:348px;height:361px;float:left;margin-left:0; background-color:#00a2e9; overflow:hidden; position:relative;animation:left_box 2s ease infinite;animation-iteration-count:1;}
+#login_box .limg .pic_box{width:348px;text-align:center; position:absolute; top:145px;}
+#login_box .limg .forget_password{position:absolute; bottom:19px; height:20px; line-height:20px;width:100%; text-align:center;}
+#login_box .limg .forget_password .text{display:inline-block; padding:0 50px; color:#FFF; font-size:14px; background:url(../images/login/xian_bg.png) no-repeat left center,url(../images/login/xian_bg.png) no-repeat right center;}
+#login_box .limg .forget_password .text:hover{ text-decoration:underline;}
+#login_box .limg .forget_password .text img{ vertical-align:sub; width:18px; height:18px;}
+
+@-webkit-keyframes right_box{
+	0%{ margin-right:-600px; opacity:0;}
+	40%{ margin-right:-600px; opacity:0;}
+	100%{margin-right:0; opacity:1;}
+}
+#login_box form{float:right; overflow:hidden;width:492px; background:#fff; height:361px;animation:right_box 2s ease infinite;animation-iteration-count:1;}
+#login_box form h2{height:50px; line-height:50px; text-indent:35px; font-size:16px; border-bottom:1px solid #00a2e9; box-sizing:border-box; color:#00a2e9; font-weight:normal;}
+#login_box form .f{width:410px; margin:40px 41px 0 41px;}
+
+#login_box form .f input:focus{border:1px solid #00a2e9; }
+#login_box form .f input{border:1px solid #d8d8d8;height:48px;font-family:"微软雅黑"; box-sizing:border-box; line-height:48px;margin-bottom:14px;font-size:16px; color:#333; padding-left:40px;width:100%; outline:none;border-radius:2px; z-index:1;}
+
+#login_box form .f input[name="username"]:focus{background:url(../images/login/2.png) 14px 14px no-repeat;}
+
+#login_box form .f input[name="password"]:focus{background:url(../images/login/1.png) 14px 14px no-repeat;}
+
+#login_box form .f .code{width:100%;}
+#login_box form .f .code input[name="code"]{width:265px; float:left;background:url(../images/login/4.png) 14px 14px no-repeat;}
+#login_box form .f .code input[name="code"]:focus{background:url(../images/login/3.png) 14px 14px no-repeat;}
+#login_box form .f .code a{display:inline-block; float:left; width:85px;height:35px;cursor:pointer; margin:6px 0 0 22px;}
+
+#login_box form .f .submit{color:#fff; width:100%; height:48px; padding:0; line-height:48px; font-size:16px; font-weight:bold; background:#00a2e9; border:none;cursor:pointer;}
+#login_box form .f .submit:hover{background:#35b1e7;transition:all 0.5s;}

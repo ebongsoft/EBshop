@@ -1,0 +1,11 @@
+<view class="cont">
+<view class="a"><image src="/images/yhfk.jpg"></image></view>
+<view class="a_b"></view>
+<view class="a_c"></view>  
+<form bindsubmit="reg">
+<view class="xing"><text>姓名：</text><input name="name" placeholder="请输入你的姓名" /></view>
+<view class="xing"><text>手机：</text><input name="tel" placeholder="请输入你的手机号码" /></view>
+<view class="xing"><text>反馈内容：</text><input name="message" placeholder-class='input-placeholder' placeholder="请留下您的反馈信息"/></view>
+<button class="but" formType="submit">提交反馈</button>
+</form>
+</view>

@@ -1,0 +1,60 @@
+<view class="container">
+    <view class="order-info">
+	    <view class="item-a">订单状态：{{orderData.order_status}}</view>
+        <view class="item-a">下单时间：{{orderData.addtime}}</view>
+        <view class="item-b">订单编号：{{orderData.order_sn}}</view>
+        <view class="item-c">
+            <view class="l">实付：<text class="cost">￥{{orderData.price}}</text></view>
+            <view class="r">
+                <view class="btn" bindtap="cancelOrder">取消订单</view>
+                <view class="btn active" bindtap="payOrder">去付款</view>
+            </view>
+        </view>
+    </view>
+
+    <view class="order-goods">
+        <view class="h">
+            <view class="label">商品信息</view>
+            <view class="status">{{orderInfo.order_status_text}}</view>
+        </view>
+        <view class="goods">
+            <view class="item" wx:for="{{proData}}" wx:key="key">
+                <view class="img">
+                    <image src="{{item.photo_x}}"></image>
+                </view>
+                <view class="info">
+                    <view class="t">
+                        <text class="name">{{item.name}}</text>
+                        <text class="number">x{{item.num}}</text>
+                    </view>
+                    <view class="attr">{{item.goods_specifition_name_value}}</view>
+                    <view class="price">￥{{item.price}}</view>
+                </view>
+            </view>
+        </view>
+    </view>
+
+    <view class="order-bottom">
+        <view class="address">
+            <view class="t">
+                <text class="name">{{orderData.receiver}}</text>
+                <text class="mobile">{{orderData.tel}}</text>
+            </view>
+            <view class="b">{{orderData.address_xq}}</view>
+        </view>
+        <view class="total">
+            <view class="t">
+                <text class="label">商品合计：</text>
+                <text class="txt">￥{{orderData.price}}</text>
+            </view>
+            <view class="t" wx:if="{{orderData.order_status=='待收货'}}">
+                <text class="label">运费：</text>
+                <text class="txt">￥{{orderInfo.freight_price}}</text>
+            </view>
+        </view>
+        <view class="pay-fee">
+            <text class="label">实付：</text>
+            <text class="txt">￥{{orderData.price}}</text>
+        </view>
+    </view>
+</view>

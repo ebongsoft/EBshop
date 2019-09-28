@@ -1,0 +1,55 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="search">
+    <navigator url="/pages/search/search" class="input">
+      <image class="icon"></image>
+      <text class="txt">商品搜索, 共{{goodsCount}}款好物</text>
+    </navigator>
+  </view>
+  <swiper class="banner" indicator-dots="true" autoplay="true" interval="3000" duration="1000">
+    <swiper-item wx:for="{{imgUrls}}" wx:key="{{item.id}}">
+      <navigator url="{{item.action}}">
+        <image src="{{item.photo}}" background-size="cover"></image>
+      </navigator>
+    </swiper-item>
+  </swiper>
+
+  <view class="m-menu">
+    <navigator  class="item" url="../listdetail/listdetail?cat_id={{item.id}}" wx:for="{{category}}" wx:key="{{item.id}}">
+      <image src="{{item.bz_1}}" background-size="cover"></image>
+      <text>{{item.name}}</text>
+    </navigator>
+	<navigator url="../listdetail/listdetail"  class="item">
+	<image src="../../static/images/more.png" background-size="cover"></image>
+      <text>更多</text>
+	 </navigator>
+  </view>
+
+
+  <view class="a-section a-new" wx:if="{{newGoods.length > 0}}">
+    <view class="h">
+      <view>
+        <navigator url="../newGoods/newGoods">
+          <text class="txt"> 新品首发</text>
+        </navigator>
+      </view>
+    </view>
+    <view class="b">
+      <view class="item" wx:for="{{newGoods}}" wx:for-index="index" wx:for-item="item" wx:key="{{item.id}}">
+        <navigator url="../product/detail?productId={{item.id}}">
+          <image class="img" src="{{item.photo_x}}" background-size="cover"></image>
+          <text class="name">{{item.name}}</text>
+          <text class="price">￥{{item.price_yh}}</text>
+        </navigator>
+      </view>
+    </view>
+  </view>
+  <view class="a-section a-quan">
+    <view class="quan">
+      <navigator url="../ritual/ritual">
+        <image src="../../static/images/quan.jpg" background-size="cover"></image>
+      </navigator>
+    </view>
+  </view>
+  
+</view>

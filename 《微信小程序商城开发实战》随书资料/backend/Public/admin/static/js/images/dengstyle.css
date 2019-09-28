@@ -1,0 +1,24 @@
+
+<!-- 默认样式 -->
+
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,p,blockquote,th,td{margin:0;padding:0;}
+table{border-collapse:collapse;border-spacing:0;font-size:inherit;}
+fieldset,img{border:0;}
+article,details,figure,footer,header,menu,nav,section,summary{display:block}
+address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}
+ol,ul,li{list-style:none;}
+caption,th{text-align:left;}
+h1,h2,h3,h4,h5,h6{font-size:100%;}
+html{height:100%;}
+
+/*链接字体样式*/
+a{ text-decoration:none; font-size:12px; color:#666;}
+a:hover{ text-decoration:none;}
+img{ border:0px;vertical-align:middle;}
+
+/*清除样式*/
+.clear{ clear:both; padding:0; margin:0; background:none; height:0px; font-size:0px;}
+
+
+input[type="hidden"]{ border:none; background:none;}
+input[text]{background:#FFFEF2; border:0px;}

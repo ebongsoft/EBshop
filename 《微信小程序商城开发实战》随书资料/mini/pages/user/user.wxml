@@ -1,0 +1,73 @@
+<view class="container">
+  <view class="profile-info" bindtap="goLogin">
+    <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+    <view class="info">
+      <text class="name">{{userInfo.nickName}}</text>
+    </view>
+  </view>
+
+  <view class="user-menu">
+    <view class="item">
+      <navigator url="../user/dingdan?currentTab=0" class="a">
+        <text class="icon order"></text>
+        <text class="txt">待付款订单</text>
+      </navigator>
+    </view>
+	<view class="item">
+      <navigator url="../user/daifahuo?currentTab=0" class="a">
+        <text class="icon order"></text>
+        <text class="txt">待发货订单</text>
+      </navigator>
+    </view>
+	<view class="item">
+      <navigator url="../user/daishouhuo?currentTab=0" class="a">
+        <text class="icon order"></text>
+        <text class="txt">待收货订单</text>
+      </navigator>
+    </view>
+	<view class="item">
+      <navigator url="../user/success?currentTab=0" class="a">
+        <text class="icon order"></text>
+        <text class="txt">已完成订单</text>
+      </navigator>
+    </view>
+
+    <view class="item">
+      <navigator url="../user/shouhou" class="a">
+        <text class="icon kefu"></text>
+        <text class="txt">退款售后</text>
+      </navigator>
+    </view>
+
+    <view class="item">
+      <navigator url="../myritual/myritual" class="a">
+        <text class="icon coupon"></text>
+        <text class="txt">优惠券</text>
+      </navigator>
+    </view>
+    
+    <view class="item">
+      <navigator url="../address/user-address/user-address" class="a">
+        <text class="icon address"></text>
+        <text class="txt">地址管理</text>
+      </navigator>
+    </view>
+
+    <view class="item item-bottom">
+      <navigator url="../user/feedback" class="a">
+        <text class="icon feedback"></text>
+        <text class="txt">用户反馈</text>
+      </navigator>
+    </view>
+
+     <view class="item">
+      <navigator url="../synopsis/synopsis" class="a">
+        <text class="icon security"></text>
+        <text class="txt">关于我们</text>
+      </navigator>
+    </view>
+
+  </view>
+
+<view class="logout" bindtap="exitLogin">信真小铺 匠心出品</view>
+</view>

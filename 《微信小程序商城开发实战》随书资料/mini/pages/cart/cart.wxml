@@ -1,0 +1,56 @@
+<view class="container">
+  <view class="service-policy">
+    <view class="item">30分钟极速响应</view>
+    <view class="item">24小时快速退款</view>
+    <view class="item">满888元送好礼</view>
+  </view>
+  <view class="no-cart" wx:if="{{carts==''}}">
+    <view class="c">
+      <image src="http://nos.netease.com/mailpub/hxm/yanxuan-wap/p/20150730/style/img/icon-normal/noCart-a8fe3f12e5.png" />
+      <text>去添加点什么吧</text>
+    </view>
+  </view>
+<!--购物车空样式-->  
+
+  <view class="cart-view">
+    <view class="list">
+      <view class="group-item">
+        <view class="goods">
+          <view class="item edit" wx:for="{{carts}}" data-title="{{item.pro_name}}" id="{{item.id}}">
+	      <view class="checkbox checked" wx:if="{{item.selected}}" type="success_circle" size="20" bindtap="bindCheckbox" data-index="{{index}}"></view>
+          <view class="checkbox" wx:else type="circle" size="20" bindtap="bindCheckbox" data-index="{{index}}"></view>
+		 
+		 
+            <view class="cart-goods">
+              <image class="img" src="{{item.photo_x}}" mode="aspectFill"></image>
+              <view class="info">
+                <view class="t">
+                  <text class="name">{{item.pro_name}}</text>
+                <!--  <text class="num">x{{item.BuyCount}}</text> -->
+                </view>
+                <view class="attr">已选择：{{item.goods_specifition_name_value}}</view>
+                <view class="b">
+                  <text class="price">￥{{item.price}}</text>
+                  <view class="selnum"><text bindtap="removeShopCard" data-cartid="{{item.id}}" class="modal-close">x</text>
+                    <view class="cut" data-index="{{index}}" bindtap="bindMinus" data-cartid="{{item.id}}">-</view>
+                    <input class="number" type="number" bindchange="bindManual" value="{{item.num}}"/>
+                    <view class="add" data-index="{{index}}" bindtap="bindPlus" data-cartid="{{item.id}}">+</view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+    </view>
+    <view class="cart-bottom" bindtap="bindSelectAll">
+      <view class="checkbox checked" wx:if="{{selectedAllStatus}}" type="success_circle" size="24">全选</view>
+	  <view class="checkbox" wx:else type="circle" size="24">全选</view>
+		
+      <view class="total">{{total}}</view>
+
+      <view class="checkout" bindtap='bindCheckout'>下单</view>
+    </view>
+  </view>
+</view>

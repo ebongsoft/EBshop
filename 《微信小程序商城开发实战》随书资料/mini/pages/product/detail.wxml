@@ -1,0 +1,75 @@
+<scroll-view class="container" scroll-y="true">
+<view>
+<swiper class="goodsimgs" indicator-dots="true" autoplay="true" interval="3000" duration="1000">
+<swiper-item wx:for="{{bannerItem}}" wx:key="{{item.id}}">
+<image src="{{item}}" background-size="cover"></image>
+</swiper-item>
+</swiper>
+<view class="service-policy">
+<view class="item">30分钟极速响应</view>
+<view class="item">24小时快速退款</view>
+<view class="item">满888元送好礼</view>
+</view>
+<view class="goods-info">
+<view class="c">
+<text class="name">{{itemData.name}}</text>
+<text class="desc">{{itemData.intro}}</text>
+<text class="price">￥{{itemData.price_yh}}</text>
+<view class="brand">
+<navigator url="../listdetail/listdetail?brandId={{itemData.brand}}">
+<text>{{itemData.brand}}</text>
+</navigator>
+</view>
+</view>
+</view>
+
+<view class="goods-attr">
+<view class="t">商品参数</view>
+<view class="l">
+<view class="item">
+<text class="left">商品编号</text><text class="right">{{itemData.pro_number}}</text>
+<text class="left">商品分类</text><text class="right">{{itemData.cat_name}}</text>
+</view>
+</view>
+</view>
+<view class="detail">
+<import src="../../wxParse/wxParse.wxml"/> 
+<template is="wxParse" data="{{wxParseData:content.nodes}}"/>
+</view>
+<view class="common-problem">
+<view class="h">
+<view class="line"></view>
+<text class="title">常见问题</text>
+</view>
+<view class="b">
+<view class="item">
+<view class="question-box"><text class="spot"></text><text class="question">是否提供纸质合同协议？</text></view>
+<view class="answer">目前所有技术服务订单均有订单记录，订单金额满500元以及以上可以免费邮寄纸质版服务合同协议文本。</view>
+<view class="question-box"><text class="spot"></text><text class="question">技术服务售后如何反馈？</text></view>
+<view class="answer">您可以通过本系统中的意见反馈或者直接拨打售后热线400-123-4567进行反馈。</view>
+</view>
+</view>
+</view>
+<view class="related-goods">
+<view class="h">
+<view class="line"></view>
+<text class="title">大家都在看</text>
+</view>
+<view class="b">
+<view class="item" wx:for="{{newGoods}}" wx:key="{{item.id}}">
+<navigator url="../product/detail?productId={{item.id}}">
+<image class="img" src="{{item.photo_x}}" background-size="cover"></image>
+<text class="name">{{item.name}}</text>
+<text class="price">￥{{item.price_yh}}</text>
+</navigator>
+</view>
+</view>
+</view>
+</view>
+
+<view class="bottom-btn">
+<view class="c" bindtap="addShopCart" data-status="1" data-type="buynow">立即购买</view>
+<view class="r" bindtap="addShopCart" data-type="addcart">加入购物车</view>
+</view>
+
+</scroll-view>

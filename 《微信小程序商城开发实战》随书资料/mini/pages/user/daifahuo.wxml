@@ -1,0 +1,28 @@
+<!-- 待发货 -->
+<view class="container">
+<view class="orders">
+<navigator class="order" wx:for="{{orderList1}}" wx:key="key">
+<view class="h">
+<view class="l">订单编号：{{item.order_sn}}</view>
+<view class="r">{{item.order_status_text}}</view>
+</view>
+<view class="goods">
+<view class="img"><image src="{{item.photo_x}}"></image></view>
+<view class="info">
+<text class="name">{{item.name}}</text>
+
+<text class="number">共{{item.pro_count}}件商品X单价：¥ {{item.price_yh}} 数量：X{{item.product_num}}</text>
+</view>
+<view class="status"></view>
+</view>
+<view class="b">
+<view class="l">实付：￥{{item.price}}</view>
+<view class="r">
+<navigator url="../order/detail?orderId={{item.id}}" class="btn">订单详情</navigator>
+<button class="btn" bindtap="removeOrder" data-order-id="{{item.id}}">取消订单</button>
+<navigator class="btn" url="tuihuo?orderId={{item.id}}">申请退款</navigator>
+</view>
+</view>
+</navigator>
+</view>
+</view>

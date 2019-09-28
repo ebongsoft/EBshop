@@ -1,0 +1,24 @@
+<view class="container">
+
+<view class="sort">
+<view class="sort-box">
+<view class="service-policy">
+<view class="item">30分钟极速响应</view>
+<view class="item">24小时快速退款</view>
+<view class="item">满888元送好礼</view>
+</view>
+</view>
+</view>
+
+<view class="cate-item">
+<view class="b">
+<block wx:for="{{shopList}}" wx:for-index="index" wx:for-item="item" wx:key="{{item.id}}">
+<navigator class="item {{index % 2 == 0 ? 'item-b' : '' }}" url="../product/detail?productId={{item.id}}">
+<image class="img" src="{{item.photo_x}}" background-size="cover"></image>
+<text class="name">{{item.name}}</text>
+<text class="price">￥{{item.price_yh}}</text>
+</navigator>
+</block>
+</view>
+</view>
+</view>
