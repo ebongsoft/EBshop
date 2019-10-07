@@ -15,8 +15,8 @@ define class AddressController as Session
     * 所有地址
     text to lcSQLCmd noshow textmerge
 	   select * from lr_address where uid=<<user_id1>> order by is_default desc,id desc
-	  endtext
- 	  oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
+	endtext
+ 	oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
     if oDBSQLhelper.SQLQuery(lcSQLCmd,"adds_list")<0
       return '{"status":0,"err":"网络异常."}'
     endif 
@@ -38,19 +38,23 @@ define class AddressController as Session
     sheng1=val(httpqueryparams("sheng"))
     city1=val(httpqueryparams("city"))
     quyu1=val(httpqueryparams("quyu"))
-    address1=httpqueryparams("adds")
-    code1=httpqueryparams("code")
+    address1=ALLTRIM(httpqueryparams("adds"))
+    code1=ALLTRIM(httpqueryparams("code"))
     uid1=val(httpqueryparams("user_id"))
-    if empty("name1") or empty("tel1") or empty("address1")
+  
+    if empty(name1) or empty(tel1) or empty(address1)
       return '{"status":0,"err":"请先完善信息后再提交."}'
     endif 
-    if empty("sheng1") or empty("city1") or empty("quyu")
+    if empty(sheng1) or empty(city1) or empty(quyu)
       return '{"status":0,"err":"请选择省市区."}'
     endif
-
-
-
-
+    
+    * 判断地址是否已添加
+	oDBSQLhelper=NEWOBJECT("MSSQLHelper","MSSQLHelper.prg")
+	ss1 = oDBSQLhelper.GetSingle(stringformat("SELECT COUNT(*) FROM [lr_address] WHERE adds='{1}' ",address1))
+    IF ss1>0
+      RETURN  '{"status":0,"err":"该地址已经添加了."}'
+	ENDIF	
 
   endproc
 
