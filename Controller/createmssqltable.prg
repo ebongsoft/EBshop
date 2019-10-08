@@ -16,199 +16,149 @@ IF Handle < 1
    MESSAGEBOX( "无法连接到数据库" + CHR(13) + ConnStr, 16 )
    RETURN
 ENDIF
-*!* 删除所有表
-cmd =[ declare @sql varchar(8000);
-      while (select count(*) from sysobjects where type='U')>0;
-      begin;
-      SELECT @sql='drop table ' + name;
-      FROM sysobjects;
-      WHERE (type = 'U');
-      ORDER BY 'drop table ' + name;
-      exec(@sql) ;
-      end]
 
-   lr = SQLEXEC( Handle, Cmd) && 发送SQL命令
-IF lr < 0 
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF  
      
 *!* 创建MSSQL表
-&& 用户表
-cmd =[ CREATE TABLE lr_user (;
-     id int identity(1,1) not null primary key,;
-     name varchar(50),;
-     pwd varchar(50),;
-     addtime int,;
-     jifen decimal(11,0),;
-     photo varchar(255),;
-     tel char(15))]
-   lr = SQLEXEC( Handle, Cmd) && 发送SQL命令    
-IF lr < 0 
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF       
-&& 第二行     
-cmd =[alter table lr_user add;          
-     qq_id varchar(20),;
-     email varchar(50),;
-     sex int,;
-     del int,;
-     openid varchar(50),;
-     source varchar(50)]
-   lr = SQLEXEC( Handle, Cmd) && 发送SQL命令
-IF lr < 0 
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF       
+
+TEXT TO cmd NOSHOW TEXTMERGE
+
+    /* 用户表 */
+	CREATE TABLE [user] ( 
+		id int identity(1,1) not null primary key,
+		name varchar(50),
+		pwd varchar(50),
+		addtime int,
+		jifen decimal(11,0),
+		photo varchar(255),
+		tel char(15),
+		qq_id varchar(20),
+		email varchar(50),
+		sex int,del int,
+		openid varchar(50),
+		source varchar(50) 
+	)
+    
+    /* 产品表 */
+	CREATE TABLE [product] ( 
+		id int identity(1,1) not null primary key,
+		shop_id int,
+		brand_id int,
+		name varchar(50),
+		intro varchar(100),
+		pro_number varchar(100),
+		price_jf int,
+		price decimal(8,2) null default '0.00',
+		price_yh decimal(8,2) null DEFAULT '0.00',
+		photo_x varchar(100) null,
+		photo_d varchar(100) null,
+		photo_string varchar(50) null,
+		content varchar(250) null,
+		addtime datetime null,
+		updatetime datetime null,
+		sart int,
+		renqi int,
+		shiyong int,
+		num int,
+		type int default '0',
+		del int default '0',
+		del_time datetime null,
+		pro_buff varchar(250) null,
+		cid int,
+		company char(10) null,
+		is_show int default '0',
+		is_down int default '0',
+		is_hot int default '0',
+		is_sale int default '0',
+		start_time datetime null,
+		end_time datetime null,
+		pro_type int default '0'
+	)
+
+	/* 收货地址表 */
+	CREATE TABLE [address] (
+		id int identity(1,1) not null primary key,
+		name varchar(10) null,
+		tel char(15) null,
+		sheng int,
+		city int,
+		quyu int,
+		address varchar(10) null,
+		address_xq varchar(255) null,
+		code int,
+		uid int,
+		is_default int default '0'
+	)
 
 
-&&  产品表
-*!* 第一行
-cmd =[ CREATE TABLE lr_product (;
-     id int identity(1,1) not null primary key,;
-     shop_id int,;
-     brand_id int,;
-     name varchar(50) ,;
-     intro varchar(100) ,;
-     pro_number varchar(100) ,;
-     price_jf int)]
-   lr = SQLEXEC( Handle, Cmd) && 发送SQL命令
-IF lr < 0 
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF  
-     
-*!* 第二行     
-cmd =[alter table lr_product add;     
-     price decimal(8,2) null default '0.00',;
-     price_yh decimal(8,2) null DEFAULT '0.00',;
-     photo_x varchar(100) null,;
-     photo_d varchar(100) null,;
-     photo_string varchar(50) null,;
-     content varchar(250) null,;
-     addtime datetime null]
-   lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
-IF lr < 0
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF
-*!* 第三行     
-cmd =[alter table lr_product add; 
-     updatetime datetime null,;
-     sart int,;     
-     renqi int,;
-     shiyong int,;
-     num int,;
-     type int default '0',;
-     del int default '0']
-   lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
-IF lr < 0
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF  
-*!* 第四行     
-cmd =[alter table lr_product add;    
-     del_time datetime null,;
-     pro_buff varchar(250) null,;
-     cid int,;
-     company char(10) null,;
-     is_show int default '0',;
-     is_down int default '0',;
-     is_hot int default '0']
-*!* 第五行      
-cmd =[alter table lr_product add;     
-     is_sale int default '0',;
-     start_time datetime null,;
-     end_time datetime null,;
-     pro_type int default '0';
-     ]
+	/* 省市区地址联动表 */
+	CREATE TABLE [china_city] (
+		id int identity(1,1) not null primary key,
+		tid int,
+		name varchar(255) null,
+		code varchar(255) null,
+		head varchar(2) null,
+		type int default '0'
+	)
 
-   lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
-IF lr < 0
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF
 
-&& 收货地址表
-cmd =[ CREATE TABLE lr_address (;
-     id int identity(1,1) not null primary key,;
-     name varchar(10) null,;
-     tel char(15) null,;
-     sheng int,;
-     city int,;
-     quyu int,;
-     address varchar(10) null,;
-     address_xq varchar(255) null,;
-     code int,;
-     uid int,;
-     is_default int default '0';
-     )]
+	/* 广告信息表 */
+	CREATE TABLE [guanggao] (
+		id int identity(1,1) not null primary key,
+		name varchar(255) null,
+		photo varchar(100) null,
+		addtime int default '0',
+		sort int default '0',
+		type int default '0',
+		action varchar(255) null,
+		position int default '1'
+	)
 
-   lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
-IF lr < 0
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF
 
-&& 省市区地址联动表
-cmd =[ CREATE TABLE lr_china_city (;
-     id int identity(1,1) not null primary key,;
-     tid int,;
-     name varchar(255) null,;
-     code varchar(255) null,;
-     head varchar(2) null,;
-     type int default '0';
-     )]
 
-   lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
-IF lr < 0
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF
-
-&& 广告信息表
-cmd =[ CREATE TABLE lr_guanggao (;
-     id int identity(1,1) not null primary key,;
-     name varchar(255) null,;
-     photo varchar(100) null,;
-     addtime int default '0',;
-     sort int default '0',;
-     type int default '0',;
-     action varchar(255) null,;
-     position int default '1';
-     )]
-
-   lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
-IF lr < 0
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF   
-   
-&&优惠卷表
-cmd =[ CREATE TABLE lr_voucher (;
+/* 优惠卷表 */
+ CREATE TABLE lr_voucher (;
      id int identity(1,1) not null primary key,;
      shop_id int default '0',;
      title varchar(100) null,;
      full_money decimal(9,2) null default '0.00',;
      anount decimal(8,2) null default '0.00',;
      start_time datetime null,;
-     end_time datetime null)]
-
-   lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
-IF lr < 0
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
-ENDIF
-
-&&优惠卷表二     
-cmd =[alter table lr_voucher add;      
-     point int default '0',;
+     end_time datetime null
+ point int default '0',;
      count int default '1',;
      receive_num int default '0',;
      addtime datetime null,;
      type int default '1',;
-     tel int default '0';
+     tel int default '0'    
+     
+     
+     
+     
+
+ENDTEXT 
+
+lr = SQLEXEC(Handle, Cmd) && 发送SQL命令
+IF lr < 0 
+  MESSAGEBOX( Cmd+"创建数据表失败",16 )
+  SUSPEND  && 终止类过程的运行
+ENDIF       
+
+SQLDISCONNECT(0) && 断开数据库
+
+
+
+
+
+
+
+
+  
+   
+
+
+&&优惠卷表二     
+cmd =[alter table lr_voucher add;      
+     ;
      ]
    lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
 IF lr < 0
@@ -414,7 +364,7 @@ IF lr < 0
    SUSPEND  && 终止类过程的运行
 ENDIF
 *!* 创建购物车表     
-cmd=[CREATE TABLE lr_shopping_char(;
+cmd=[CREATE TABLE shopping_char(;
      id int identity(1,1) not null primary key,;
      pid int DEFAULT '0',;
      price decimal(9,2) DEFAULT '0.00',;
@@ -424,8 +374,7 @@ cmd=[CREATE TABLE lr_shopping_char(;
      uid int)]
 lr = SQLEXEC( Handle, Cmd ) && 发送SQL命令
 IF lr < 0
-   MESSAGEBOX( "创建数据表失败",16 )
-   SUSPEND  && 终止类过程的运行
+EXIT 
 ENDIF
 && 购物车表第二行     
 cmd=[alter table lr_shopping_char add;      
@@ -439,12 +388,6 @@ IF lr < 0
 ENDIF
 
 
-
-
-
-
-
-
-
+SUSPEND  && 终止类过程的运行
 SQLDISCONNECT(0) && 断开数据库
 *!*	---------------------------------------------------------------------------------------------
