@@ -92,8 +92,8 @@ TEXT TO cmd NOSHOW TEXTMERGE
 	CREATE TABLE [china_city] (
 		id int identity(1,1) not null primary key,
 		tid int,
-		name varchar(60) null,
-		code varchar(60) null,
+		name varchar(255) null,
+		code varchar(255) null,
 		head varchar(2) null,
 		type int default '0'
 	)

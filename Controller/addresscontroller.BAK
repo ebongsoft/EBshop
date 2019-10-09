@@ -56,7 +56,7 @@ define class AddressController as Session
     endif	
 
     text to lcSQLCmd noshow textmerge
-	  select name as province from [china_city] where id=<<sheng1>>
+	    select name as province from [china_city] where id=<<sheng1>>
     endtext
  	oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
     if oDBSQLhelper.SQLQuery(lcSQLCmd,"adds_list")<0

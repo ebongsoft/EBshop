@@ -1,0 +1,15 @@
+{
+    "sqltools.connections": [
+        {
+            "database": "EBshopdb",
+            "dialect": "MSSQL",
+            "isActive": false,
+            "isConnected": false,
+            "name": "EBshopdb",
+            "password": "Eb123456",
+            "port": 1433,
+            "server": "192.168.2.8",
+            "username": "sa"
+        }
+    ]
+}
