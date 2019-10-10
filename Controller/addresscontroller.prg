@@ -48,23 +48,12 @@ define class AddressController as Session
     if empty(sheng1) or empty(city1) or empty(quyu1)
       return '{"status":0,"err":"请选择省市区."}'
     endif
-    * 判断地址是否已添加
+
 	  oDBSQLhelper=NEWOBJECT("MSSQLHelper","MSSQLHelper.prg")
-	  ss1 = oDBSQLhelper.GetSingle(stringformat("SELECT COUNT(*) FROM [address] WHERE adds='{1}' ",address1))
-    if ss1>0
-      return '{"status":0,"err":"该地址已经添加了."}'
-    endif	
-
-    text to lcSQLCmd noshow textmerge
-	  select name as province from [china_city] where id=<<sheng1>>
-    endtext
- 	oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
-    if oDBSQLhelper.SQLQuery(lcSQLCmd,"adds_list")<0
-      return '{"status":0,"err":"网络异常."}'
-    ENDIF
-    province = province 
-    RETURN province
-
+	  province = oDBSQLhelper.GetSingle(stringformat("SELECT name FROM [china_city] WHERE id='{1}' ",sheng1))
+	  city_name = oDBSQLhelper.GetSingle(stringformat("SELECT name FROM [china_city] WHERE id='{1}' ",city1))
+    quyu_name = oDBSQLhelper.GetSingle(stringformat("SELECT name FROM [china_city] WHERE id='{1}' ",quyu1))
+    RETURN province+city_name+quyu_name
 
 
   endproc

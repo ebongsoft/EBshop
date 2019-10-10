@@ -55,16 +55,9 @@ define class AddressController as Session
       return '{"status":0,"err":"该地址已经添加了."}'
     endif	
 
-    text to lcSQLCmd noshow textmerge
-	    select name as province from [china_city] where id=<<sheng1>>
-    endtext
- 	oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
-    if oDBSQLhelper.SQLQuery(lcSQLCmd,"adds_list")<0
-      return '{"status":0,"err":"网络异常."}'
-    ENDIF
-    province = province 
-    RETURN province
-
+	oDBSQLhelper=NEWOBJECT("MSSQLHelper","MSSQLHelper.prg")
+	ss1 = oDBSQLhelper.GetSingle("select name from [china_city] where id=1")
+    RETURN ss1
 
 
   endproc
