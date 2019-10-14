@@ -1,12 +1,13 @@
 {
     "sqltools.connections": [
         {
-            "database": "EBshopdb",
+            "connectionTimeout": 3000,
+            "database": "EbShopdb",
             "dialect": "MSSQL",
             "isActive": false,
             "isConnected": false,
-            "name": "EBshopdb",
-            "password": "Eb123456",
+            "name": "192.168.2.8",
+            "password": "3b7d29akfq93lgs8",
             "port": 1433,
             "server": "192.168.2.8",
             "username": "sa"
