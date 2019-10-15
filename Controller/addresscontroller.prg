@@ -140,9 +140,12 @@ define class AddressController as Session
       return '{"status":0,"err":"«Î—°‘Ò °∑›."}'
     endif
     text to lcSQLCmd noshow textmerge
-	    select id,name from [china_city] where tid=0
+	    select id,name from [china_city] where tid=<<sheng1>>
 	  endtext
  	  oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
+
+     	  ss1 = oDBSQLhelper.GetSingle(stringformat("select id,name from [china_city] where tid=0"))
+
     if oDBSQLhelper.SQLQuery(lcSQLCmd,"china_city")<0
       return '{"status":0}'
     endif 
