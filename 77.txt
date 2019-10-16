@@ -1,12 +1,12 @@
-POST /AddressController.fsp?proc=index HTTP/1.1
+POST /CategoryController.fsp?proc=getcat HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
-User-Agent: PostmanRuntime/7.17.1
+User-Agent: PostmanRuntime/7.18.0
 Accept: */*
 Cache-Control: no-cache
-Postman-Token: 486e2a30-20d5-4a58-8356-8e027249487d
+Postman-Token: 4e41e231-99ed-44b9-adfb-2906ba882bf7
 Host: 192.168.2.6:801
 Accept-Encoding: gzip, deflate
-Content-Length: 9
+Content-Length: 8
 Connection: keep-alive
 
-user_id=1
+cat_id=1

@@ -9,19 +9,30 @@ define class CategoryController as Session
   * 产品分类
   *
   procedure index
-
-    * 所有地址
-    text to lcSQLCmd noshow textmerge
-	   select * from [address] where uid=<<user_id1>> order by is_default desc,id desc
-	  endtext
- 	  oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
-    if oDBSQLhelper.SQLQuery(lcSQLCmd,"adds_list")<0
-      return '{"status":0,"err":"网络异常."}'
-    endif 
-
+	oDBSQLhelper=NEWOBJECT("MSSQLHelper","MSSQLHelper.prg")
+    list1 = oDBSQLhelper.GetSingle("select id,tid,name,concent,bz_1,bz_2 from [category] where tid=1")
     return DbfToJson("adds_list")
   endproc
 
+
+  *
+  * 获取产品分类信息
+  *
+  procedure getcat
+    catid1=val(HttpQueryParams("cat_id"))
+    if empty(catid1)
+      return '{"status":0,"err":"网络异常。"}'
+    endif  
+
+    text to lcSQLCmd noshow textmerge
+	    select id,name,bz_1 from [category] where tid=<<catid1>>
+	endtext
+    oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
+    if oDBSQLhelper.SQLQuery(lcSQLCmd,"catList")<0
+      return '{"status":0}'
+    endif 
+    return DbfToJson("catList")
+  endproc
 
 
 enddefine
