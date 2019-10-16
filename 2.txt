@@ -1,12 +1,12 @@
-POST /AddressController.fsp?proc=add_adds HTTP/1.1
+POST /AddressController.fsp?proc=index HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 User-Agent: PostmanRuntime/7.17.1
 Accept: */*
 Cache-Control: no-cache
-Postman-Token: 31d99a4b-74e6-4d93-aba4-67138f0dd4d1
+Postman-Token: 486e2a30-20d5-4a58-8356-8e027249487d
 Host: 192.168.2.6:801
 Accept-Encoding: gzip, deflate
-Content-Length: 117
+Content-Length: 9
 Connection: keep-alive
 
-user_id=1&receiver=lianwuyi&tel=159869889933&sheng=1&city=2&quyu=3&adds=danshuizhenchengjieyizhongxin1007&code=516211
+user_id=1

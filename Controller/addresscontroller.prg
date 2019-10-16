@@ -4,6 +4,7 @@
 
 define class AddressController as Session
 
+
   *
   * 获取用户地址数据接口
   *
@@ -143,15 +144,79 @@ define class AddressController as Session
 	    select id,name from [china_city] where tid=<<sheng1>>
 	  endtext
  	  oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
-
-     	  ss1 = oDBSQLhelper.GetSingle(stringformat("select id,name from [china_city] where tid=0"))
-
-    if oDBSQLhelper.SQLQuery(lcSQLCmd,"china_city")<0
+    if oDBSQLhelper.SQLQuery(lcSQLCmd,"city_list")<0
       return '{"status":0}'
     endif 
-    return DbfToJson("china_city")
+    return DbfToJson("city_list")
   endproc 
 
+
+  *
+  * 获取区域数据接口
+  *
+  procedure get_area
+    city1=int(HttpQueryParams("city"))
+    if empty(city1)
+      return '{"status":0,"err":"请选择城市."}'
+    endif
+    text to lcSQLCmd noshow textmerge
+	    select id,name from [china_city] where tid=<<city1>>
+	  endtext
+ 	  oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
+    if oDBSQLhelper.SQLQuery(lcSQLCmd,"area_list")<0
+      return '{"status":0}'
+    endif 
+    return DbfToJson("area_list")
+  endproc 
+
+
+  *
+  * 获取邮政编号接口
+  *
+  procedure get_code
+    quyu1=int(HttpQueryParams("quyu"))
+    text to lcSQLCmd noshow textmerge
+	    select code from [china_city] where tid=<<quyu1>>
+	  endtext
+ 	  oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
+    if oDBSQLhelper.SQLQuery(lcSQLCmd,"code")<0
+      return '{"status":0}'
+    endif 
+    return DbfToJson("code")
+  endproc
+
+
+  *
+  * 设置默认地址
+  *
+  procedure set_default
+    uid1=int(HttpQueryParams("uid"))
+    if empty(uid1)
+      return '{"status":0,"err":"登录状态异常."}'
+    endif
+    addr_id1=int(HttpQueryParams("addr_id"))
+    if empty(addr_id1)
+      return '{"status":0,"err":"地址信息错误."}'
+    endif    
+    * 修改默认状态 
+    text to lcSQLCmd noshow textmerge
+	    update from [address] set is_default=0 where uid=<<uid1>>
+	  endtext
+ 	  oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
+    if oDBSQLhelper.SQLQuery(lcSQLCmd,"code")<0
+      return '{"status":0,"err":"设置失败."}'
+    endif 
+    * 
+    text to lcSQLCmd1 noshow textmerge
+	    update from [address] set is_default=1 where uid=<<uid1>> and id=<<addr_id1>>
+	  endtext
+ 	  oDBSQLhelper=newobject("MSSQLhelper","MSSQLhelper.prg")
+    if oDBSQLhelper.SQLQuery(lcSQLCmd1,"code")<0
+      return '{"status":0,"err":"设置失败."}'
+    endif    
+    return '{"status":1}'
+
+  endproc
 
 
 enddefine
